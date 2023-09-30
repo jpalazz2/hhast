@@ -37,9 +37,8 @@ final class LicenseHeaderLinter extends AutoFixingASTLinter {
     if ($first is EndOfFile) {
       return null;
     }
-    $leading = C\first(
-      $first->getFirstToken()?->getLeading()?->toVec() ?? vec[],
-    );
+    $leading =
+      C\first($first->getFirstToken()?->getLeading()?->toVec() ?? vec[]);
 
     if ($leading is DelimitedComment) {
       if (
@@ -131,6 +130,16 @@ final class LicenseHeaderLinter extends AutoFixingASTLinter {
     self::$forcedHeader = $header;
   }
 
+  private static function getCWDIfRootDirectory(): ?string {
+    $path = \realpath(\getcwd());
+
+    if (\file_exists($path.'/hhast-list.json')) {
+      return $path;
+    } else {
+      return null;
+    }
+  }
+
   <<__Memoize>>
   private static function getLicenseHeaderForPath(string $path): ?string {
     if (self::$forcedHeader !== null) {
@@ -142,11 +151,14 @@ final class LicenseHeaderLinter extends AutoFixingASTLinter {
     }
 
     $path = \dirname(\realpath($path));
-    if (
-      Str\starts_with($path, \realpath(\Facebook\AutoloadMap\Generated\root()))
-    ) {
+    $root = self::getCWDIfRootDirectory();
+
+    if ($root === null) {
+      return null;
+    } else if (Str\starts_with($path, $root)) {
       return self::getLicenseHeaderForPath($path);
     }
+
     return null;
   }
 }

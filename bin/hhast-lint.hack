@@ -12,26 +12,11 @@ namespace Facebook\HHAST\__Private;
 
 <<__EntryPoint>>
 async function hhast_lint_main_async(): Awaitable<noreturn> {
-  $root = \realpath(__DIR__.'/..');
-  $found_autoloader = false;
-  while (true) {
-    $autoloader = $root.'/vendor/autoload.hack';
-    if (\file_exists($autoloader)) {
-      $found_autoloader = true;
-      require_once($autoloader);
-      \Facebook\AutoloadMap\initialize();
-      break;
-    }
-    if ($root === '') {
-      break;
-    }
-    $parts = \explode('/', $root);
-    \array_pop(inout $parts);
-    $root = \implode('/', $parts);
-  }
-
-  if (!$found_autoloader) {
-    \fprintf(\STDERR, "Failed to find autoloader.\n");
+  if (!\HH\Facts\enabled()) {
+    \fprintf(
+      \STDERR,
+      "FactsDB must be enabled for hhast to autoload properly.\n",
+    );
     exit(1);
   }
 

@@ -101,9 +101,7 @@ final class CodegenCLI extends CLIBase {
 
   <<__Memoize>>
   private function getSchema(): self::TSchema {
-    $json = \file_get_contents(
-      \Facebook\AutoloadMap\Generated\root().'/codegen/schema.json',
-    );
+    $json = \file_get_contents(\realpath(\getcwd()).'/codegen/schema.json');
     $array = \json_decode(
       $json, /* associative array = */
       true, /* depth = */
